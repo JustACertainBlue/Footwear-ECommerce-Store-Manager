@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Tracker - Bitis's Management System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <style>
+        body { font-family: Inter, sans-serif; background: #f8f9fa; }
+        .modal { transition: opacity .2s ease; }
+        .modal-card { transition: transform .2s ease; }
+        .field-error { min-height: 18px; color: #dc2626; font-size: 12px; margin-top: 4px; }
+        #toast { position: fixed; right: 24px; bottom: 24px; z-index: 200; padding: 12px 18px; border-radius: 8px; opacity: 0; transform: translateY(50px); transition: .25s; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+    <script src="assets/js/sidebar-preload.js"></script>
+</head>
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-[#2C333A] text-white flex flex-col h-screen sticky top-0">
+            <div class="p-6 mb-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-[#FF7043] mr-3 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M11 5v11.17l-4.88-4.88a1 1 0 00-1.42 1.41l6.59 6.59a1 1 0 001.41 0l6.59-6.59a1 1 0 00-1.42-1.41L13 16.17V5a1 1 0 00-2 0z"/></svg>
+                    <div><h2 class="text-xl font-bold leading-tight">Bitis's<br />Management</h2><p class="text-xs text-slate-400 mt-1">System Terminal</p></div>
+                </div>
+            </div>
+            <nav class="flex-1">
+                <a class="flex items-center px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="index.html">Dashboard</a>
+                <a class="flex items-center px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="product_catalog.html">Products</a>
+                <a class="flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016]" href="inventory_tracker.html">Inventory</a>
+                <a class="flex items-center px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="order_management.html">Orders</a>
+            </nav>
+            <div class="border-t border-slate-700/30 py-4">
+                <a class="flex items-center px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50" href="staff_management.html">Staff Management</a>
+                <button onclick="signOut()" class="w-full text-left px-6 py-3 text-sm text-slate-300 hover:bg-slate-700/50">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8">
+                <a href="profile.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 border flex items-center justify-center overflow-hidden">
+                        <img id="adminAvatar" class="hidden w-full h-full object-cover" alt="Admin" />
+                        <span id="avatarFallback" class="font-bold text-slate-500">A</span>
+                    </div>
+                    <div><p id="adminName" class="text-sm font-bold">Admin User</p><p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p></div>
+                </a>
+            </header>
+
+            <div class="p-8">
+                <div class="flex items-end justify-between gap-4 mb-7">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">Inventory Tracker</h1>
+                        <p class="text-sm text-slate-500 mt-1">Product overview across warehouses and sizes.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportInventory()" class="h-10 px-4 border border-[#E30016] text-[#E30016] rounded-lg text-sm font-semibold hover:bg-red-50">Export</button>
+                        <button onclick="openAddModal()" title="Add inventory" class="w-10 h-10 bg-[#E30016] text-white rounded-lg flex items-center justify-center hover:bg-red-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-width="2"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white border rounded-lg p-5"><p class="text-xs font-semibold text-slate-400 uppercase">Products</p><p id="productCount" class="text-2xl font-bold mt-2">0</p></div>
+                    <div class="bg-white border border-red-100 rounded-lg p-5"><p class="text-xs font-semibold text-red-500 uppercase">Out of Stock</p><p id="outCount" class="text-2xl font-bold mt-2">0</p></div>
+                    <div class="bg-white border border-amber-100 rounded-lg p-5"><p class="text-xs font-semibold text-amber-600 uppercase">Low Quantity</p><p id="lowCount" class="text-2xl font-bold mt-2">0</p></div>
+                    <div class="bg-white border rounded-lg p-5"><p class="text-xs font-semibold text-slate-400 uppercase">Total Units</p><p id="unitCount" class="text-2xl font-bold mt-2">0</p></div>
+                </div>
+
+                <div class="bg-white border rounded-lg p-4 mb-5 flex flex-wrap gap-3">
+                    <div class="relative flex-1 min-w-[240px]">
+                        <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg>
+                        <input id="searchInput" class="w-full pl-9 py-2 border-slate-200 rounded-lg text-sm" placeholder="Search product or SKU..." />
+                    </div>
+                    <select id="categoryFilter" class="py-2 border-slate-200 rounded-lg text-sm"><option value="">All Categories</option></select>
+                    <select id="statusFilter" class="py-2 border-slate-200 rounded-lg text-sm">
+                        <option value="">All Statuses</option><option value="out">Out of Stock</option><option value="low">Low Quantity</option><option value="ok">In Stock</option>
+                    </select>
+                </div>
+
+                <div class="bg-white border rounded-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 border-b text-[11px] uppercase text-slate-400">
+                                <tr><th class="px-6 py-4">Product</th><th class="px-6 py-4">Category</th><th class="px-6 py-4">Warehouses</th><th class="px-6 py-4">Sizes</th><th class="px-6 py-4">Total Stock</th><th class="px-6 py-4">Alerts</th><th class="px-6 py-4 text-right">Details</th></tr>
+                            </thead>
+                            <tbody id="inventoryBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="addModal" class="modal fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 opacity-0">
+        <div id="addCard" class="modal-card bg-white w-full max-w-lg rounded-xl shadow-2xl scale-95">
+            <div class="px-7 py-5 border-b flex items-start justify-between">
+                <div><h2 class="text-lg font-bold">Add Inventory by Size</h2><p class="text-sm text-slate-500 mt-1">Each entry represents one product size at one warehouse.</p></div>
+                <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+            </div>
+            <form id="addForm" class="p-7 space-y-4">
+                <div class="relative">
+                    <label class="block text-sm font-semibold mb-2">Product</label>
+                    <input id="productSearch" autocomplete="off" class="w-full border-slate-200 rounded-lg text-sm" placeholder="Search name or SKU..." />
+                    <input id="productId" type="hidden" />
+                    <div id="productList" class="hidden absolute z-10 w-full mt-1 max-h-52 overflow-auto bg-white border rounded-lg shadow-xl"></div>
+                    <p id="productError" class="field-error"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold mb-2">Warehouse</label><select id="warehouseId" class="w-full border-slate-200 rounded-lg text-sm"><option value="">Select warehouse</option></select></div>
+                    <div><label class="block text-sm font-semibold mb-2">Size</label><select id="sizeValue" class="w-full border-slate-200 rounded-lg text-sm" disabled><option value="">Select product first</option></select></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold mb-2">Quantity</label><input id="quantity" type="number" min="0" value="100" class="w-full border-slate-200 rounded-lg text-sm" /></div>
+                    <div><label class="block text-sm font-semibold mb-2">Low Quantity</label><input id="lowQuantity" type="number" min="0" value="20" class="w-full border-slate-200 rounded-lg text-sm" /></div>
+                </div>
+                <p id="formError" class="field-error"></p>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 border rounded-lg text-sm font-semibold">Cancel</button>
+                    <button id="addButton" class="px-5 py-2.5 bg-[#E30016] text-white rounded-lg text-sm font-bold">Add Inventory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="toast" class="bg-slate-900 text-white text-sm"></div>
+
+    <script>
+        let inventoryRows = [];
+        let products = [];
+        let warehouses = [];
+        let summaries = [];
+
+        const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+        const rowStatus = row => row.current_stock === 0 ? 'out' : row.current_stock <= row.low_quantity ? 'low' : 'ok';
+        const showToast = message => { const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2600); };
+        const productImage = (product, imageClass = 'w-full h-full object-cover') => {
+            const imageUrl = product.image_url || product.product_images?.[0]?.image_url;
+            const initial = esc((product.name || '?')[0]);
+            return imageUrl
+                ? `<img src="${esc(imageUrl)}" alt="${esc(product.name)}" class="${imageClass}" onerror="this.outerHTML='<span class=&quot;font-bold text-slate-400&quot;>${initial}</span>'" />`
+                : `<span class="font-bold text-slate-400">${initial}</span>`;
+        };
+
+        function summarizeInventory() {
+            const map = new Map();
+            products.forEach(product => {
+                map.set(product.id, { product, rows: [], warehouses: new Set(), sizes: new Set(), total: 0, out: 0, low: 0 });
+            });
+            inventoryRows.forEach(row => {
+                if (!row.products) return;
+                const id = row.product_id;
+                if (!map.has(id)) map.set(id, { product: row.products, rows: [], warehouses: new Set(), sizes: new Set(), total: 0, out: 0, low: 0 });
+                const item = map.get(id);
+                item.rows.push(row);
+                if (row.warehouses?.name) item.warehouses.add(row.warehouses.name);
+                item.sizes.add(row.size);
+                item.total += row.current_stock || 0;
+                if (rowStatus(row) === 'out') item.out++;
+                if (rowStatus(row) === 'low') item.low++;
+            });
+            summaries = [...map.values()];
+            updateStats();
+            render();
+        }
+
+        function updateStats() {
+            document.getElementById('productCount').textContent = summaries.length;
+            document.getElementById('outCount').textContent = summaries.filter(item => !item.rows.length || item.out > 0).length;
+            document.getElementById('lowCount').textContent = summaries.filter(item => item.low > 0).length;
+            document.getElementById('unitCount').textContent = summaries.reduce((sum, item) => sum + item.total, 0).toLocaleString('vi-VN');
+        }
+
+        function productOverallStatus(item) {
+            if (!item.rows.length) return 'out';
+            if (item.out > 0) return 'out';
+            if (item.low > 0) return 'low';
+            return 'ok';
+        }
+
+        function render() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const data = summaries.filter(item => {
+                const product = item.product;
+                const searchable = `${product.name || ''} ${product.sku || ''}`.toLowerCase();
+                return (!query || searchable.includes(query)) && (!category || product.category === category) && (!status || productOverallStatus(item) === status);
+            });
+            const body = document.getElementById('inventoryBody');
+            if (!data.length) {
+                body.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">No inventory found.</td></tr>';
+                return;
+            }
+            body.innerHTML = data.map(item => {
+                const product = item.product;
+                const expectedSizeCount = Number.isInteger(Number(product.size_from)) && Number.isInteger(Number(product.size_to))
+                    ? Math.max(Number(product.size_to) - Number(product.size_from) + 1, 0)
+                    : 0;
+                const alerts = [
+                    !item.rows.length ? '<span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-bold">No inventory</span>' : '',
+                    item.out ? `<span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-bold">${item.out} out</span>` : '',
+                    item.low ? `<span class="px-2 py-1 rounded bg-amber-100 text-amber-700 text-xs font-bold">${item.low} low</span>` : '',
+                    item.rows.length && !item.out && !item.low ? '<span class="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-bold">Healthy</span>' : ''
+                ].join(' ');
+                return `<tr class="hover:bg-slate-50 cursor-pointer" onclick="openDetails('${product.id}')">
+                    <td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-16 h-16 rounded-lg bg-white border overflow-hidden flex items-center justify-center flex-shrink-0">${productImage(product)}</div><div><p class="font-bold text-slate-800">${esc(product.name)}</p><p class="text-xs text-slate-400 mt-1">${esc(product.sku)}</p></div></div></td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${esc(product.category || '—')}</td>
+                    <td class="px-6 py-4 text-sm font-semibold">${item.warehouses.size}</td>
+                    <td class="px-6 py-4 text-sm">${item.sizes.size ? `${Math.min(...item.sizes)}–${Math.max(...item.sizes)} <span class="text-slate-400">(${item.sizes.size})</span>` : `${product.size_from ?? '—'}–${product.size_to ?? '—'} <span class="text-slate-400">(0/${expectedSizeCount})</span>`}</td>
+                    <td class="px-6 py-4 font-bold">${item.total.toLocaleString('vi-VN')} <span class="font-normal text-slate-400">pcs</span></td>
+                    <td class="px-6 py-4"><div class="flex flex-wrap gap-1">${alerts}</div></td>
+                    <td class="px-6 py-4 text-right"><button class="p-2 text-slate-400 hover:text-[#E30016]" title="View size details"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-width="2"/></svg></button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openDetails(productId) { window.location.href = `inventory_tracker_detal.html?product_id=${encodeURIComponent(productId)}`; }
+
+        function renderProductList(query = '') {
+            const list = document.getElementById('productList');
+            const normalized = query.toLowerCase();
+            const matches = products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(normalized)).slice(0, 15);
+            list.innerHTML = matches.length ? matches.map(p => `<button type="button" data-id="${p.id}" class="w-full text-left px-4 py-3 border-b last:border-0 hover:bg-slate-50"><span class="block text-sm font-semibold">${esc(p.name)}</span><span class="text-xs text-slate-400">${esc(p.sku)} · Size ${p.size_from ?? '—'}–${p.size_to ?? '—'}</span></button>`).join('') : '<p class="p-4 text-sm text-slate-400">No matching products.</p>';
+            list.querySelectorAll('[data-id]').forEach(button => button.onclick = () => selectProduct(button.dataset.id));
+            list.classList.remove('hidden');
+        }
+
+        function selectProduct(id) {
+            const product = products.find(item => item.id === id);
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productSearch').value = `${product.name} (${product.sku})`;
+            document.getElementById('productList').classList.add('hidden');
+            const sizeSelect = document.getElementById('sizeValue');
+            const from = Number(product.size_from);
+            const to = Number(product.size_to);
+            if (Number.isInteger(from) && Number.isInteger(to) && to >= from) {
+                sizeSelect.innerHTML = '<option value="">Select size</option>' + Array.from({length: to - from + 1}, (_, index) => from + index).map(size => `<option value="${size}">${size}</option>`).join('');
+                sizeSelect.disabled = false;
+            } else {
+                sizeSelect.innerHTML = '<option value="">Product has no size range</option>';
+                sizeSelect.disabled = true;
+            }
+            document.getElementById('productError').textContent = '';
+        }
+
+        async function openAddModal() {
+            document.getElementById('addForm').reset();
+            document.getElementById('quantity').value = 100;
+            document.getElementById('lowQuantity').value = 20;
+            document.getElementById('productId').value = '';
+            document.getElementById('sizeValue').innerHTML = '<option value="">Select product first</option>';
+            document.getElementById('sizeValue').disabled = true;
+            document.getElementById('formError').textContent = '';
+            const modal = document.getElementById('addModal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            requestAnimationFrame(() => { modal.classList.remove('opacity-0'); document.getElementById('addCard').classList.remove('scale-95'); });
+        }
+        function closeAddModal() {
+            const modal = document.getElementById('addModal');
+            modal.classList.add('opacity-0'); document.getElementById('addCard').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+        }
+
+        document.getElementById('productSearch').addEventListener('input', event => { document.getElementById('productId').value = ''; renderProductList(event.target.value); });
+        document.getElementById('productSearch').addEventListener('focus', event => renderProductList(event.target.value));
+        document.getElementById('searchInput').addEventListener('input', render);
+        document.getElementById('categoryFilter').addEventListener('change', render);
+        document.getElementById('statusFilter').addEventListener('change', render);
+        document.getElementById('addModal').addEventListener('click', event => { if (event.target === event.currentTarget) closeAddModal(); });
+
+        document.getElementById('addForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const payload = {
+                product_id: document.getElementById('productId').value,
+                warehouse_id: document.getElementById('warehouseId').value,
+                size: Number(document.getElementById('sizeValue').value),
+                current_stock: Number(document.getElementById('quantity').value),
+                low_quantity: Number(document.getElementById('lowQuantity').value),
+                updated_at: new Date().toISOString()
+            };
+            const errorEl = document.getElementById('formError');
+            if (!payload.product_id) { document.getElementById('productError').textContent = 'Select a product from the list.'; return; }
+            if (!payload.warehouse_id || !Number.isInteger(payload.size) || payload.current_stock < 0 || payload.low_quantity < 0) { errorEl.textContent = 'Complete all fields with valid values.'; return; }
+            const button = document.getElementById('addButton'); button.disabled = true; button.textContent = 'Adding...';
+            const { error } = await window.supabaseClient.from('inventory').insert(payload);
+            button.disabled = false; button.textContent = 'Add Inventory';
+            if (error) { errorEl.textContent = error.code === '23505' ? 'This product, warehouse and size already exists.' : error.message; return; }
+            closeAddModal(); showToast('Inventory size added.'); await loadData();
+        });
+
+        function exportInventory() {
+            const rows = [['SKU','Product','Warehouse','Size','Quantity','Low Quantity','Status'], ...inventoryRows.map(row => [row.products?.sku,row.products?.name,row.warehouses?.name,row.size,row.current_stock,row.low_quantity,rowStatus(row)])];
+            const csv = '\uFEFF' + rows.map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+            const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'})); link.download = 'inventory_by_size.csv'; link.click(); URL.revokeObjectURL(link.href);
+        }
+
+        async function loadProfile() {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) return;
+            document.getElementById('adminEmail').textContent = session.user.email;
+            const { data } = await window.supabaseClient.from('user_profiles').select('*').eq('id', session.user.id).maybeSingle();
+            if (data?.full_name) document.getElementById('adminName').textContent = data.full_name;
+            if (data?.avatar_url) { const img = document.getElementById('adminAvatar'); img.src = data.avatar_url; img.classList.remove('hidden'); document.getElementById('avatarFallback').classList.add('hidden'); }
+        }
+        async function signOut() { await window.supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+
+        async function loadData() {
+            const [{data: inventory, error}, {data: productData}, {data: warehouseData}] = await Promise.all([
+                window.supabaseClient.from('inventory').select('*, products(*), warehouses(*)').order('updated_at', {ascending:false}),
+                window.supabaseClient.from('products').select('id,name,sku,category,size_from,size_to,image_url,product_images(image_url,created_at)').order('name'),
+                window.supabaseClient.from('warehouses').select('id,name,location_code').in('location_code',['HN','HCM']).order('name')
+            ]);
+            if (error) { document.getElementById('inventoryBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">${esc(error.message)}</td></tr>`; return; }
+            inventoryRows = inventory || []; products = productData || []; warehouses = warehouseData || [];
+            document.getElementById('warehouseId').innerHTML = '<option value="">Select warehouse</option>' + warehouses.map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
+            const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+            document.getElementById('categoryFilter').innerHTML = '<option value="">All Categories</option>' + categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+            summarizeInventory();
+        }
+
+        loadProfile();
+        loadData();
+    </script>
+    <script src="assets/js/sidebar-toggle.js"></script>
+    <script src="assets/js/page-transition.js"></script>
+</body>
+</html>

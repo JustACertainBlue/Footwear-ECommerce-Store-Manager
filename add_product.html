@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Add New Product - Bitis's Management System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+
+        .ai-gradient-border {
+            background: linear-gradient(white, white) padding-box,
+                linear-gradient(to right, #2C333A, #E30016) border-box;
+            border: 2px solid transparent;
+        }
+    </style>
+    <script src="assets/js/sidebar-preload.js"></script>
+</head>
+
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-[#2C333A] text-white flex flex-col h-screen sticky top-0">
+            <div class="p-6 mb-4">
+                <div class="flex items-start">
+                    <div class="mr-3 mt-1">
+                        <svg class="w-5 h-5 text-[#FF7043]" fill="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M11 5v11.17l-4.88-4.88c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L13 16.17V5c0-.55-.45-1-1-1s-1 .45-1 1z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold leading-tight">Bitis's<br />Management</h2>
+                        <p class="text-xs text-slate-400 mt-1">System Terminal</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 px-0 space-y-0.5">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="index.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-semibold bg-white/10 border-l-4 border-[#E30016] text-white transition"
+                    href="product_catalog.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Products
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="inventory_tracker.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Inventory
+                </a>
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="order_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Orders
+                </a>
+            </nav>
+            <div class="px-0 py-4 space-y-0.5 border-t border-slate-700/30">
+                <a class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition"
+                    href="staff_management.html">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Staff Management
+                </a>
+                <a onclick="window.supabaseClient.auth.signOut().then(() => window.location.href='login.html')"
+                    class="flex items-center px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition cursor-pointer">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+                <div class="flex items-center gap-4">
+                    <a href="product_catalog.html" class="text-slate-400 hover:text-slate-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </a>
+                    <h1 class="text-lg font-bold text-slate-800">Add New Product</h1>
+                </div>
+                <a href="profile.html" class="flex items-center space-x-3 border-l border-slate-100 pl-6 hover:bg-slate-50 p-1 rounded-lg transition">
+                    <img id="adminAvatar" alt="Admin" class="w-10 h-10 rounded-full border border-slate-200 object-cover"
+                        src="https://via.placeholder.com/40" />
+                    <div class="text-left">
+                        <p id="adminName" class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
+                        <p id="adminEmail" class="text-xs text-slate-400">admin@bitis.com.vn</p>
+                    </div>
+                </a>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+                <div class="max-w-7xl mx-auto">
+                    <form id="addProductForm" class="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+                        <div class="space-y-4 xl:col-start-1">
+                        <!-- Basic Info -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-100 shadow-sm space-y-3">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                </svg>
+                                Basic Information
+                            </h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="col-span-2">
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Product
+                                        Name</label>
+                                    <input id="productName" type="text" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                                        placeholder="e.g. Bitis's Hunter Street x VietMax">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Category</label>
+                                    <select id="productCategory"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all cursor-pointer">
+                                        <option value="" disabled selected>Select category</option>
+                                        <option value="Hunter">Hunter</option>
+                                        <option value="Sandal">Sandal</option>
+                                        <option value="Giày Thể Thao">Giày Thể Thao</option>
+                                        <option value="Giày Chạy Bộ & Đi Bộ">Giày Chạy Bộ & Đi Bộ</option>
+                                        <option value="Giày Tây">Giày Tây</option>
+                                        <option value="Dép - Hài">Dép - Hài</option>
+                                        <option value="Balo">Balo</option>
+                                        <option value="Quần Áo">Quần Áo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Collection <span class="font-normal normal-case tracking-normal">(if any)</span></label>
+                                    <input id="productCollection" type="text"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                                        placeholder="Vietnam Arising">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing & SKU -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-5 rounded-lg border border-slate-100 shadow-sm space-y-3">
+                                <label
+                                    class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Price
+                                    (VND)</label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₫</span>
+                                    <input id="productPrice" type="number" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-mono"
+                                        placeholder="899000">
+                                </div>
+                            </div>
+                            <div class="bg-white p-5 rounded-lg border border-slate-100 shadow-sm space-y-3">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">SKU</label>
+                                <input id="productSku" type="text" required
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-mono"
+                                    placeholder="e.g. BHS-GREY-01">
+                            </div>
+                        </div>
+
+                        <!-- Media -->
+                        <div class="bg-white p-5 rounded-lg border border-slate-100 shadow-sm space-y-3">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                </svg>
+                                Product Media
+                            </h3>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-2">Main Image</label>
+                                <input id="mainImageInput" type="file" accept="image/*" class="hidden">
+                                <button id="mainImageSlot" type="button"
+                                    class="relative w-36 aspect-square border-2 border-dashed border-slate-300 rounded-lg overflow-hidden bg-slate-50 hover:border-blue-500 transition flex flex-col items-center justify-center">
+                                    <span class="text-2xl text-slate-400">+</span>
+                                    <span class="text-xs font-semibold text-slate-500 mt-1">Add main image</span>
+                                </button>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="text-xs font-bold text-slate-500">Additional Media</label>
+                                    <span id="additionalCount" class="text-xs text-slate-400">0 / 7</span>
+                                </div>
+                                <input id="additionalImageInput" type="file" multiple accept="image/*" class="hidden">
+                                <div id="additionalMediaRow" class="flex flex-wrap gap-3"></div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="space-y-5 xl:col-start-2 xl:row-start-1">
+                            <section class="bg-white p-6 rounded-lg border border-slate-100 shadow-sm space-y-4">
+                                <h3 class="font-bold text-slate-800">Product Details</h3>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Color</label>
+                                    <select id="productColor"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
+                                        <option value="" selected>Select color</option>
+                                        <option value="Xám (Grey)">Xám (Grey)</option>
+                                        <option value="Đen (Black)">Đen (Black)</option>
+                                        <option value="Trắng (White)">Trắng (White)</option>
+                                        <option value="Xanh dương (Blue)">Xanh dương (Blue)</option>
+                                        <option value="Xanh lá (Green)">Xanh lá (Green)</option>
+                                        <option value="Đỏ (Red)">Đỏ (Red)</option>
+                                        <option value="Be (Beige)">Be (Beige)</option>
+                                        <option value="Nâu (Brown)">Nâu (Brown)</option>
+                                        <option value="Hồng (Pink)">Hồng (Pink)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Highlight Features</label>
+                                    <textarea id="highlightFeatures" rows="3"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 resize-y"
+                                        placeholder="e.g. Stretch-knit upper, lightweight Phylon sole and anti-slip rubber pods"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Size Range</label>
+                                    <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
+                                        <input id="sizeFrom" type="number" min="1" max="99"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500"
+                                            placeholder="39">
+                                        <span class="text-slate-400">to</span>
+                                        <input id="sizeTo" type="number" min="1" max="99"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500"
+                                            placeholder="45">
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="bg-white p-6 rounded-lg border border-slate-100 shadow-sm space-y-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800">AI Product Description</h3>
+                                        <p class="text-xs text-slate-400 mt-1">Generate, edit, then request a revision with comments.</p>
+                                    </div>
+                                    <span id="aiStatus" class="hidden text-xs font-semibold px-2 py-1 rounded bg-blue-50 text-blue-600">Generating...</span>
+                                </div>
+                                <button id="generateDescriptionBtn" type="button"
+                                    class="w-full bg-slate-900 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-slate-700 transition">
+                                    Generate with AI
+                                </button>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Description</label>
+                                    <textarea id="productDescription" rows="9"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-3 focus:ring-2 focus:ring-blue-500 resize-y"
+                                        placeholder="The generated description will appear here. You can edit it before publishing."></textarea>
+                                </div>
+                                <div class="border-t border-slate-100 pt-4">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Revision Comment</label>
+                                    <textarea id="revisionComment" rows="3"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 resize-y"
+                                        placeholder="e.g. Make it shorter and emphasize comfort."></textarea>
+                                    <button id="reviseDescriptionBtn" type="button" disabled
+                                        class="mt-3 w-full border border-slate-300 text-slate-700 rounded-lg py-2.5 text-sm font-bold hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                                        Send Comment & Revise
+                                    </button>
+                                </div>
+                                <p id="aiError" class="hidden text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2"></p>
+                            </section>
+                        </div>
+
+                        <!-- Final Actions -->
+                        <div class="flex items-center gap-4 pt-4 xl:col-span-2">
+                            <button type="submit" id="submitBtn"
+                                class="flex-1 bg-[#E30016] text-white py-4 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-100 flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2"></path>
+                                </svg>
+                                Publish Product
+                            </button>
+                            <button type="button" onclick="window.location.href='product_catalog.html'"
+                                class="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: profile } = await window.supabaseClient
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profile) {
+                        document.getElementById('adminName').innerText = profile.full_name;
+                        document.getElementById('adminEmail').innerText = session.user.email;
+                        if (profile.avatar_url) {
+                            document.getElementById('adminAvatar').src = profile.avatar_url;
+                        }
+                    }
+                }
+            } catch (e) { console.error("Error loading profile", e); }
+        }
+        loadUserProfile();
+
+        const form = document.getElementById('addProductForm');
+        const mainImageInput = document.getElementById('mainImageInput');
+        const mainImageSlot = document.getElementById('mainImageSlot');
+        const additionalImageInput = document.getElementById('additionalImageInput');
+        const additionalMediaRow = document.getElementById('additionalMediaRow');
+        const additionalCount = document.getElementById('additionalCount');
+        let mainImageFile = null;
+        let additionalImageFiles = [];
+
+        function fileKey(file) {
+            return `${file.name}-${file.size}-${file.lastModified}`;
+        }
+
+        function imageTile(file, onRemove, label = '') {
+            const tile = document.createElement('div');
+            tile.className = 'relative w-24 aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50 group';
+            const image = document.createElement('img');
+            image.className = 'w-full h-full object-cover';
+            image.alt = label || file.name;
+            image.src = URL.createObjectURL(file);
+            image.onload = () => URL.revokeObjectURL(image.src);
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'absolute top-1 right-1 w-6 h-6 bg-white/95 text-red-600 rounded-full shadow flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition';
+            removeButton.title = 'Remove image';
+            removeButton.innerHTML = '&times;';
+            removeButton.addEventListener('click', onRemove);
+
+            tile.append(image, removeButton);
+            return tile;
+        }
+
+        function renderMainImage() {
+            mainImageSlot.innerHTML = '';
+            if (!mainImageFile) {
+                mainImageSlot.innerHTML = '<span class="text-2xl text-slate-400">+</span><span class="text-xs font-semibold text-slate-500 mt-1">Add main image</span>';
+                return;
+            }
+            const tile = imageTile(mainImageFile, (event) => {
+                event.stopPropagation();
+                mainImageFile = null;
+                mainImageInput.value = '';
+                renderMainImage();
+            }, 'Main product image');
+            tile.className = 'absolute inset-0 group';
+            mainImageSlot.appendChild(tile);
+        }
+
+        function renderAdditionalMedia() {
+            additionalMediaRow.innerHTML = '';
+            additionalImageFiles.forEach((file, index) => {
+                additionalMediaRow.appendChild(imageTile(file, () => {
+                    additionalImageFiles.splice(index, 1);
+                    renderAdditionalMedia();
+                }));
+            });
+
+            if (additionalImageFiles.length < 7) {
+                const addButton = document.createElement('button');
+                addButton.type = 'button';
+                addButton.className = 'w-24 aspect-square border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 hover:border-blue-500 transition flex flex-col items-center justify-center';
+                addButton.innerHTML = '<span class="text-2xl text-slate-400">+</span><span class="text-[11px] font-semibold text-slate-500">Add media</span>';
+                addButton.addEventListener('click', () => additionalImageInput.click());
+                additionalMediaRow.appendChild(addButton);
+            }
+            additionalCount.textContent = `${additionalImageFiles.length} / 7`;
+        }
+
+        mainImageSlot.addEventListener('click', () => mainImageInput.click());
+        mainImageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                mainImageFile = file;
+                renderMainImage();
+            }
+        });
+
+        additionalImageInput.addEventListener('change', (event) => {
+            const existingKeys = new Set(additionalImageFiles.map(fileKey));
+            const availableSlots = 7 - additionalImageFiles.length;
+            const newFiles = Array.from(event.target.files)
+                .filter(file => file.type.startsWith('image/') && !existingKeys.has(fileKey(file)))
+                .slice(0, availableSlots);
+            additionalImageFiles.push(...newFiles);
+            additionalImageInput.value = '';
+            renderAdditionalMedia();
+        });
+
+        renderMainImage();
+        renderAdditionalMedia();
+
+        // n8n test URL: the workflow must be listening for a test event.
+        const N8N_DESCRIPTION_WEBHOOK_URL = 'https://n8n.tomorrowmarketers.info/webhook/ai-product-description-generator';
+
+        function getProductContext() {
+            return {
+                name: document.getElementById('productName').value.trim(),
+                sku: document.getElementById('productSku').value.trim(),
+                category: document.getElementById('productCategory').value,
+                collection: document.getElementById('productCollection').value.trim() || null,
+                price_vnd: Number(document.getElementById('productPrice').value) || null,
+                color: document.getElementById('productColor').value || null,
+                highlight_features: document.getElementById('highlightFeatures').value.trim() || null,
+                size_from: Number(document.getElementById('sizeFrom').value) || null,
+                size_to: Number(document.getElementById('sizeTo').value) || null,
+                size: {
+                    from: Number(document.getElementById('sizeFrom').value) || null,
+                    to: Number(document.getElementById('sizeTo').value) || null
+                }
+            };
+        }
+
+        function validateDescriptionContext() {
+            const context = getProductContext();
+            if (!context.name || !context.category) {
+                throw new Error('Please enter Product Name and select Category first.');
+            }
+            if ((context.size.from && !context.size.to) || (!context.size.from && context.size.to)) {
+                throw new Error('Please enter both values for the size range.');
+            }
+            if (context.size.from && context.size.to && context.size.from > context.size.to) {
+                throw new Error('The first size must be smaller than or equal to the second size.');
+            }
+            return context;
+        }
+
+        function readDescriptionFromResponse(data) {
+            const description = data?.description ?? data?.output ?? data?.text ?? data?.data?.description;
+            if (typeof description !== 'string' || !description.trim()) {
+                throw new Error('The webhook response must contain description, output, text, or data.description.');
+            }
+            if (hasCorruptedVietnameseText(description)) {
+                throw new Error('The AI response contains corrupted Vietnamese characters (?). Check the n8n response encoding before trying again.');
+            }
+            return description.trim();
+        }
+
+        function hasCorruptedVietnameseText(value) {
+            return (String(value).match(/\?/g) || []).length >= 2;
+        }
+
+        async function requestAiDescription(action) {
+            if (!N8N_DESCRIPTION_WEBHOOK_URL) {
+                throw new Error('Add your n8n Production Webhook URL to N8N_DESCRIPTION_WEBHOOK_URL in add_product.html.');
+            }
+
+            const description = document.getElementById('productDescription').value.trim();
+            const comment = document.getElementById('revisionComment').value.trim();
+            if (action === 'revise' && (!description || !comment)) {
+                throw new Error('Add a description and a revision comment before requesting a revision.');
+            }
+
+            const response = await fetch(N8N_DESCRIPTION_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action,
+                    source: 'product_form',
+                    form_mode: 'create',
+                    product_id: null,
+                    output_language: 'vi',
+                    product: validateDescriptionContext(),
+                    current_description: action === 'revise' ? description : null,
+                    revision_comment: action === 'revise' ? comment : null
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`n8n returned HTTP ${response.status}.`);
+            }
+            return readDescriptionFromResponse(await response.json());
+        }
+
+        async function runAiAction(action) {
+            const generateButton = document.getElementById('generateDescriptionBtn');
+            const reviseButton = document.getElementById('reviseDescriptionBtn');
+            const status = document.getElementById('aiStatus');
+            const errorBox = document.getElementById('aiError');
+            generateButton.disabled = true;
+            reviseButton.disabled = true;
+            status.textContent = action === 'generate' ? 'Generating...' : 'Revising...';
+            status.classList.remove('hidden');
+            errorBox.classList.add('hidden');
+
+            try {
+                document.getElementById('productDescription').value = await requestAiDescription(action);
+                document.getElementById('revisionComment').value = '';
+            } catch (error) {
+                errorBox.textContent = error.message;
+                errorBox.classList.remove('hidden');
+            } finally {
+                generateButton.disabled = false;
+                reviseButton.disabled = !document.getElementById('productDescription').value.trim();
+                status.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('generateDescriptionBtn').addEventListener('click', () => runAiAction('generate'));
+        document.getElementById('reviseDescriptionBtn').addEventListener('click', () => runAiAction('revise'));
+        document.getElementById('productDescription').addEventListener('input', (event) => {
+            document.getElementById('reviseDescriptionBtn').disabled = !event.target.value.trim();
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Processing...';
+
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('productCategory').value;
+            const collection = document.getElementById('productCollection').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const description = document.getElementById('productDescription').value.trim();
+            const sku = document.getElementById('productSku').value.trim();
+            const color = document.getElementById('productColor').value || null;
+            const highlightFeatures = document.getElementById('highlightFeatures').value.trim() || null;
+            const sizeFrom = Number(document.getElementById('sizeFrom').value) || null;
+            const sizeTo = Number(document.getElementById('sizeTo').value) || null;
+
+            try {
+                validateDescriptionContext();
+                if (!mainImageFile) throw new Error('Please select a main product image.');
+                if (hasCorruptedVietnameseText(name) || hasCorruptedVietnameseText(description) ||
+                    hasCorruptedVietnameseText(highlightFeatures)) {
+                    throw new Error('Some Vietnamese text appears corrupted and contains multiple ? characters. Please correct it before publishing.');
+                }
+
+                const selectedFiles = [mainImageFile, ...additionalImageFiles];
+                const uploadedUrls = [];
+                for (const file of selectedFiles) {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                    const filePath = `products/${fileName}`;
+                    const { error: uploadError } = await window.supabaseClient.storage.from('product-media').upload(filePath, file);
+                    if (uploadError) throw uploadError;
+                    const { data: { publicUrl } } = window.supabaseClient.storage.from('product-media').getPublicUrl(filePath);
+                    uploadedUrls.push(publicUrl);
+                }
+
+                const { data: productData, error: productError } = await window.supabaseClient.from('products').insert([{
+                    name,
+                    sku,
+                    category,
+                    collection: collection || null,
+                    price,
+                    base_price: price,
+                    color,
+                    highlight_features: highlightFeatures,
+                    size_from: sizeFrom,
+                    size_to: sizeTo,
+                    description,
+                    image_url: uploadedUrls[0],
+                    updated_at: new Date().toISOString()
+                }]).select();
+                if (productError) throw productError;
+
+                const productId = productData[0].id;
+                const { error: imagesError } = await window.supabaseClient.from('product_images').insert(uploadedUrls.map(url => ({ product_id: productId, image_url: url })));
+                if (imagesError) throw imagesError;
+
+                alert('Product added successfully!');
+                window.location.href = 'product_catalog.html';
+            } catch (error) {
+                alert('Error: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalContent;
+            }
+        });
+    </script>
+    <script src="assets/js/sidebar-toggle.js"></script>
+    <script src="assets/js/page-transition.js"></script>
+</body>
+
+</html>
